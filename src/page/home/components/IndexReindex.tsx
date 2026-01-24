@@ -2,7 +2,6 @@ import {useIndexStore} from "@/store";
 import {Alert, Button, Form, FormItem, DialogPlugin, DialogInstance, Option, Select, Switch} from "tdesign-vue-next";
 import MessageUtil from "@/utils/model/MessageUtil";
 import {useEsRequest} from "@/plugins/native/axios";
-import {useSeniorSearchStore} from "@/store/components/SeniorSearchStore";
 import AppLink from "@/components/AppLink/AppLink.vue";
 import {IndexItem} from "$/elasticsearch-client";
 import {useLoading} from "@/hooks/UseLoading";
@@ -56,24 +55,11 @@ export function indexReindex(index: string) {
       </Form>
     </>,
     footer: () => <>
-      <Button variant="text" theme={"primary"} onClick={() => jumpTo(index, config, modalReturn)}>{i18n.global.t('home.index_reindex.jump_to_senior_search')}</Button>
       <Button onClick={() => modalReturn.destroy()}>{i18n.global.t('home.index_reindex.cancel')}</Button>
       <Button theme="primary" onClick={() => onOk(index, config, modalReturn)}>{i18n.global.t('home.index_reindex.execute')}</Button>
     </>,
     draggable: true,
   });
-}
-
-function jumpTo(index: string, config: Ref<Config>, modalReturn: DialogInstance) {
-  useSeniorSearchStore().loadEvent({
-    method: 'POST',
-    link: '_reindex' + (config.value.async ? '?wait_for_completion=false' : ''),
-    body: `{
-    "source": {"index": "${index}",
-    "dest": {"index": "${config.value.index}"}
-}`
-  });
-  modalReturn.destroy();
 }
 
 function onOk(index: string, config: Ref<Config>, modalReturn: DialogInstance) {

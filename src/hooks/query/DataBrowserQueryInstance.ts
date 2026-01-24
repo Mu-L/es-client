@@ -6,7 +6,7 @@ import { useGlobalSettingStore, useUrlStore } from "@/store";
 import type { Ref } from "vue";
 import MessageUtil from "@/utils/model/MessageUtil";
 import dayjs from "dayjs";
-import {DataSourceRecord} from "@/domain/core";
+import {type DataSourceRecord} from "$/elasticsearch-client/types/DataSearch";
 
 export interface UseDataBrowserQueryInstance {
   id: string;

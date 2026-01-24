@@ -22,10 +22,6 @@ const router = createRouter({
     path: '/base-search',
     component: () => import('@/page/base-search/index.vue')
   }, {
-    name: '高级查询',
-    path: '/senior-search',
-    component: () => import('@/page/senior-search/index.vue')
-  }, {
     name: '开发者工具',
     path: '/dev-tool',
     component: () => import('@/page/dev-tool/index.vue')

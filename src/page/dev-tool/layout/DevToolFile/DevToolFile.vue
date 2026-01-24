@@ -1,9 +1,9 @@
 <template>
-  <div class="abs-8 !right-0 material-card">
+  <div class="abs-8 !right-0 material-card min-w-250px overflow-hidden">
     <!-- 工具栏 -->
-    <div class="toolbar">
+    <div class="toolbar flex items-center">
       <t-space size="small">
-        <t-button variant="text" size="small" @click="openFileContextmenu($event)">
+        <t-button variant="text" size="small" @click="openFileContextmenu($event, activeKey)">
           <template #icon>
             <add-icon/>
           </template>
@@ -16,6 +16,12 @@
           {{ $t('dev_tool.refresh') }}
         </t-button>
       </t-space>
+      <div class="ml-auto">
+        <t-radio-group v-model="activeKey" variant="default-filled" size="small">
+          <t-radio-button value="global">{{ $t('dev_tool.global') }}</t-radio-button>
+          <t-radio-button value="current">{{ $t('dev_tool.current') }}</t-radio-button>
+        </t-radio-group>
+      </div>
     </div>
 
     <!-- 文件树 -->
@@ -106,7 +112,7 @@
 <script lang="ts" setup>
 import {TdTreeProps} from "tdesign-vue-next";
 import {useDevToolFileItemStore} from "@/store/db/DevToolFileItemStore";
-import {useDevToolStore, useUrlStore} from "@/store";
+import {useDevToolStore} from "@/store";
 import {
   handleFileDelete,
   handleFileRename,
@@ -136,9 +142,11 @@ const searchStore = useDevToolStore();
 // 缓存展开的节点
 const expanded = useSessionStorage(LocalNameEnum.KEY_DEV_TOOL_EXPENDED, []);
 
+const refreshing = ref(false);
+const activeKey = ref<'global' | 'current'>('global');
+
 const items = computed(() => fileItemStore.items);
 const actives = computed(() => [searchStore.activeId]);
-const refreshing = ref(false);
 
 const onClick: TdTreeProps["onClick"] = ({node}) => {
   if (node.data?._source?.folder === 1 || !node.data?._source) {
@@ -151,8 +159,6 @@ const onClick: TdTreeProps["onClick"] = ({node}) => {
 
 // 刷新文件列表
 const handleRefresh = async () => {
-  const {id} = useUrlStore();
-  if (!id) return;
   refreshing.value = true;
   try {
     fileItemStore.refresh();

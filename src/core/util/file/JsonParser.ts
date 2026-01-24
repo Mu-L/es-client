@@ -27,22 +27,29 @@ function isBigIntString(str: string): boolean {
  * @returns 解析后的对象
  */
 export function parseJsonWithBigIntSupport<T extends Record<string, any>>(text: string): T {
-  // 预处理：将可能的大整数用引号包围，避免精度丢失
-  const preprocessed = text.replace(/:\s*(-?\d{16,})\b/g, ': "$1"');
+  const preprocessed = preprocessBigIntNumbers(text);
 
   return JSON.parse(preprocessed, (_key, value) => {
-    // 处理字符串形式的大整数
     if (typeof value === "string" && isBigIntString(value)) {
       return BigInt(value);
     }
 
-    // 处理数字类型的不安全整数
     if (typeof value === "number" && isUnsafeInteger(value)) {
       return BigInt(Math.trunc(value));
     }
 
     return value;
   });
+}
+
+/**
+ * 预处理JSON字符串，将大整数转换为字符串格式
+ * 使用优化的正则表达式，确保只匹配真正的数字而不是字符串中的数字
+ * @param text JSON字符串
+ * @returns 预处理后的字符串
+ */
+function preprocessBigIntNumbers(text: string): string {
+  return text.replace(/(?<!["\w])\s*(-?\d{16,})(?=\s*[,}\]])/g, '"$1"');
 }
 
 /**

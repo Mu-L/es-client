@@ -72,11 +72,13 @@
     "create": "Erstellen",
     "create_failed": "Erstellung fehlgeschlagen",
     "create_success": "Erfolgreich erstellt",
+    "current": "current",
     "delete": "Löschen",
     "delete_failed": "Löschen fehlgeschlagen",
     "delete_success": "Erfolgreich gelöscht",
     "file_name": "Dateiname",
     "folder_name": "Ordnername",
+    "global": "global",
     "initializing": "Initialisierung",
     "new": "Neu",
     "new_dev_tool": "Neues Entwicklertool",
@@ -390,7 +392,8 @@
       "save_query_success": "Erfolgreich gespeichert",
       "show_query_condition": "Abfragebedingungen anzeigen",
       "update_data_title": "Daten 【{id}】 in 【{index}】 ändern",
-      "view": "Ansicht"
+      "view": "Ansicht",
+      "search_placeholder": "Indizes, Aliase, Ansichten oder Abfragen suchen..."
     },
     "data_export": {
       "form": {

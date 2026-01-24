@@ -72,11 +72,13 @@
     "create": "新增",
     "create_failed": "新增失败",
     "create_success": "新增成功",
+    "current": "当前",
     "delete": "删除",
     "delete_failed": "删除失败",
     "delete_success": "删除成功",
     "file_name": "文件名称",
     "folder_name": "文件夹名称",
+    "global": "全局",
     "initializing": "初始化中",
     "new": "新建",
     "new_dev_tool": "新建开发者工具",
@@ -390,7 +392,8 @@
       "save_query_success": "保存成功",
       "show_query_condition": "显示查询条件",
       "update_data_title": "在【{index}】中修改【{id}】数据",
-      "view": "视图"
+      "view": "视图",
+      "search_placeholder": "搜索索引、别名、视图或查询..."
     },
     "data_export": {
       "form": {

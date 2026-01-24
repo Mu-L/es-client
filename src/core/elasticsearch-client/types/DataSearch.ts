@@ -37,6 +37,10 @@ export interface DataSearchOrderItem {
 export interface DataSearchColumnConfig extends TableColumn {}
 
 export interface DataSourceRecord extends TableRecord {
+  _source: string;
+}
+
+export interface DataSourceRecord extends TableRecord {
   _id: string;
   // 元数据
   _type?: string;

@@ -14,7 +14,6 @@ import {
 } from "tdesign-vue-next";
 import {IndexCreate} from "@/domain/es/IndexCreate";
 import {getDefaultIndexInstance, IndexInstance} from "@/domain/IndexInstance";
-import {useSeniorSearchStore} from "@/store/components/SeniorSearchStore";
 import MessageUtil from "@/utils/model/MessageUtil";
 import {useIndexStore, useUrlStore} from "@/store";
 import MonacoEditor from "@/components/monaco-editor/index.vue";
@@ -137,24 +136,11 @@ export function indexAdd(): void {
       </Tabs>
     </>,
     footer: () => <>
-      <Button variant="text" theme={"primary"}
-              onClick={() => jumpToSeniorSearch(index, modalReturn)}>{i18n.global.t('home.index_add.jump_to_senior_search')}</Button>
       <Button variant="text" theme={"primary"} onClick={() => copyIndex(index, modalReturn)}>{i18n.global.t('home.index_add.copy_to_clipboard')}</Button>
       <Button theme="default" onClick={() => modalReturn.destroy()}>{i18n.global.t('home.index_add.cancel')}</Button>
       <Button theme="primary" onClick={() => addIndex(index, modalReturn)}>{i18n.global.t('home.index_add.create')}</Button>
     </>,
   });
-}
-
-function jumpToSeniorSearch(index: Ref<IndexInstance>, modalReturn: DialogInstance) {
-  // 构建数据
-  // 高级查询数据填充
-  useSeniorSearchStore().loadEvent({
-    link: '/' + index.value.name,
-    method: 'PUT',
-    body: stringifyJsonWithBigIntSupport(getIndexCreate(index))
-  });
-  modalReturn.destroy();
 }
 
 function copyIndex(index: Ref<IndexInstance>, modalReturn: DialogInstance) {

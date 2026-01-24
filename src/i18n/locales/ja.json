@@ -72,11 +72,13 @@
     "create": "作成",
     "create_failed": "作成失敗",
     "create_success": "作成成功",
+    "current": "current",
     "delete": "削除",
     "delete_failed": "削除失敗",
     "delete_success": "削除成功",
     "file_name": "ファイル名",
     "folder_name": "フォルダ名",
+    "global": "global",
     "initializing": "初期化中",
     "new": "新規",
     "new_dev_tool": "新規開発ツール",
@@ -390,7 +392,8 @@
       "save_query_success": "保存成功",
       "show_query_condition": "クエリ条件を表示",
       "update_data_title": "【{index}】のデータ【{id}】を変更",
-      "view": "ビュー"
+      "view": "ビュー",
+      "search_placeholder": "インデックス、エイリアス、ビュー、クエリを検索..."
     },
     "data_export": {
       "form": {

@@ -72,11 +72,13 @@
     "create": "Create",
     "create_failed": "Create failed",
     "create_success": "Create success",
+    "current": "当前",
     "delete": "Delete",
     "delete_failed": "Delete failed",
     "delete_success": "Delete success",
     "file_name": "File Name",
     "folder_name": "Folder Name",
+    "global": "global",
     "initializing": "Initializing",
     "new": "New",
     "new_dev_tool": "New Dev Tool",
@@ -390,7 +392,8 @@
       "save_query_success": "Save success",
       "show_query_condition": "Show Query Condition",
       "update_data_title": "Update data [{id}] in [{index}]",
-      "view": "View"
+      "view": "View",
+      "search_placeholder": "Search indices, aliases, views or queries..."
     },
     "data_export": {
       "form": {

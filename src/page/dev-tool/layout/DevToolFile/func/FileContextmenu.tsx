@@ -34,11 +34,18 @@ export function handleFileDelete(node: TreeNodeModel) {
     });
 }
 
-export const openFileContextmenu = async (e: MouseEvent, node?: TreeNodeModel) => {
+export const openFileContextmenu = async (
+  e: MouseEvent,
+  active: "global" | "current",
+  node?: TreeNodeModel) => {
   e.preventDefault();
   e.stopPropagation();
   const {id} = useUrlStore();
-  if (!id) return;
+  if (!id) {
+    if (active === "current") {
+      return;
+    }
+  }
 
   // 是否是根节点
   const root = !node;

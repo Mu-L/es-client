@@ -13,13 +13,6 @@
           </t-select>
         </t-space>
         <div>
-          <t-tooltip :content="$t('module.dashboard.jump_to_dev_tool')" position="br">
-            <t-button variant="text" theme="primary" shape="square" @click="jumpTo()">
-              <template #icon>
-                <filter-icon />
-              </template>
-            </t-button>
-          </t-tooltip>
           <t-button
             variant="text"
             theme="primary"
@@ -28,23 +21,21 @@
             @click="refresh()"
           >
             <template #icon>
-              <refresh-icon />
+              <refresh-icon/>
             </template>
           </t-button>
         </div>
       </div>
-      <t-table :columns="columns" :data="records" :height="virtualListHeight" />
+      <t-table :columns="columns" :data="records" :height="virtualListHeight"/>
     </t-loading>
   </t-card>
 </template>
 <script lang="ts" setup>
-import { BaseTableCol, TableRowData } from "tdesign-vue-next";
-import { cat, tabs } from "@/page/dashboard/Cat/func";
+import {BaseTableCol, TableRowData} from "tdesign-vue-next";
+import {cat, tabs} from "@/page/dashboard/Cat/func";
 import MessageUtil from "@/utils/model/MessageUtil";
-import { useIndexStore, useUrlStore } from "@/store";
-import PageNameEnum from "@/enumeration/PageNameEnum";
-import { FilterIcon, RefreshIcon } from "tdesign-icons-vue-next";
-import {useSeniorSearchStore} from "@/store/components/SeniorSearchStore";
+import {useIndexStore, useUrlStore} from "@/store";
+import {RefreshIcon} from "tdesign-icons-vue-next";
 import i18n from "@/i18n";
 
 const t = (key: string) => i18n.global.t(key);
@@ -67,7 +58,7 @@ const needIndex = computed(() => activeKey.value.indexOf("{index}") > -1);
 watch(
   () => activeKey.value,
   (key) => handler(key),
-  { immediate: true }
+  {immediate: true}
 );
 watch(() => index.value, refresh);
 
@@ -103,14 +94,6 @@ function handler(url: string) {
     .finally(() => (loading.value = false));
 }
 
-function jumpTo() {
-  router.push(PageNameEnum.SENIOR_SEARCH);
-  useSeniorSearchStore().loadEvent({
-    method: "GET",
-    link: activeKey.value,
-    body: ""
-  });
-}
 </script>
 <style scoped lang="less">
 .dashboard-cat {

@@ -10,8 +10,17 @@ import {devToolFileCreate, devToolFileDelete, devToolFileList, devToolFileRename
 export const useDevToolFileItemStore = defineStore("useDevToolFileItemStore", () => {
   // 全局文件
   const res = ref(new Array<DevToolFileItem>());
+  const globalRes = ref(new Array<DevToolFileItem>());
+  const activeKey = ref<'global' | 'current'>('global');
 
   const items = computed<Array<TreeOptionData>>(() => {
+
+    if (activeKey.value === 'global') {
+      // 全局文件
+      return listToTree(globalRes.value);
+    }
+
+
     const {id} = useUrlStore();
 
     // 当没有链接时，什么都不返回
@@ -22,17 +31,25 @@ export const useDevToolFileItemStore = defineStore("useDevToolFileItemStore", ()
   });
 
   const queryList = () => {
-    const val = useUrlStore().id;
-    if (!val) {
+    devToolFileList(0)
+      .then((items) => {
+        globalRes.value = items;
+      })
+      .catch((error) => {
+        console.error("查询全局文件失败:", error);
+        globalRes.value = [];
+      });
+    const {id} = useUrlStore();
+    if (!id) {
       res.value = [];
       return;
     }
-    devToolFileList(val)
+    devToolFileList(id)
       .then((items) => {
         res.value = items;
       })
       .catch((error) => {
-        console.error("查询全局文件失败:", error);
+        console.error("查询当前文件失败:", error);
         res.value = [];
       });
 
@@ -42,19 +59,11 @@ export const useDevToolFileItemStore = defineStore("useDevToolFileItemStore", ()
 
   const add = async (prop: DevToolFileCreateProp) => {
     const {id} = useUrlStore();
-    if (!id) {
-      return Promise.reject(new Error("请先选择连接"));
-    }
-    await devToolFileCreate(id, prop);
-
+    await devToolFileCreate(activeKey.value === 'global' ? 0 : (id || 0), prop);
     queryList();
   };
 
   const create = async (parentId: string, folder: boolean) => {
-    const {id} = useUrlStore();
-    if (!id) {
-      return Promise.reject(new Error("请先选择连接"));
-    }
 
     const name = await MessageBoxUtil.prompt(
       "请输入文件" + (folder ? "夹" : "") + "名",
@@ -96,6 +105,7 @@ export const useDevToolFileItemStore = defineStore("useDevToolFileItemStore", ()
   };
 
   return {
+    activeKey,
     items,
     add,
     create,

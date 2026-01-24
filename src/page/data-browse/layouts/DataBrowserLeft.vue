@@ -1,7 +1,19 @@
 <template>
   <div class="abs-8 !right-0 overflow-auto material-card" ref="dataBrowserLeft">
-    <div class="abs-0 overflow-auto">
-      <t-tree :data activable line :scroll="{
+    <div class="p-12px border-b border-gray-200">
+      <t-input
+        v-model="searchText"
+        :placeholder="t('module.data_browse.search_placeholder')"
+        clearable
+        @input="onSearchInput"
+      >
+        <template #prefix-icon>
+          <search-icon />
+        </template>
+      </t-input>
+    </div>
+    <div class="abs-0 overflow-auto" style="top: 60px;">
+      <t-tree :data="filteredData" activable line :scroll="{
         rowHeight: 34,
         bufferSize: 10,
         threshold: 10,
@@ -80,7 +92,8 @@ import {
   FileIcon,
   FolderIcon,
   TableIcon,
-  TagIcon
+  TagIcon,
+  SearchIcon
 } from "tdesign-icons-vue-next";
 import {decodeValue, encodeValue, useDataBrowseStore} from "@/store/components/DataBrowseStore";
 import {useDataBrowserViewStore} from "@/store/components/DataBrowserViewStore";
@@ -96,7 +109,9 @@ const elementSize = useElementSize(dataBrowserLeftRef);
 
 const actives = useSessionStorage<Array<string>>("/home/data-browser/left/active-value", []);
 
-const height = computed(() => elementSize.height.value - 40);
+const height = computed(() => elementSize.height.value - 100);
+
+const searchText = ref("");
 
 const index = computed(() => {
   const {list} = useIndexStore();
@@ -141,7 +156,88 @@ const data = computed<Array<TreeOptionData>>(() => ([
     }))
   }
 ]));
+
 const urlId = computed(() => useUrlStore().id);
+
+function flattenTree(nodes: TreeOptionData[]): TreeOptionData[] {
+  const result: TreeOptionData[] = [];
+  function traverse(node: TreeOptionData, parent: TreeOptionData | null = null) {
+    const flatNode = { ...node, parent };
+    result.push(flatNode);
+    if (node.children && Array.isArray(node.children) && node.children.length > 0) {
+      node.children.forEach((child: TreeOptionData) => traverse(child, flatNode));
+    }
+  }
+  nodes.forEach(node => traverse(node));
+  return result;
+}
+
+function buildFilteredTree(flatNodes: TreeOptionData[]): TreeOptionData[] {
+  const nodeMap = new Map<string, TreeOptionData>();
+  const childMap = new Map<string, TreeOptionData[]>();
+  const rootValues = new Set<string>();
+
+  flatNodes.forEach(node => {
+    const nodeCopy = { ...node };
+    delete nodeCopy.parent;
+    nodeMap.set(node.value as string, nodeCopy);
+    if (!node.parent) {
+      rootValues.add(node.value as string);
+    }
+  });
+
+  flatNodes.forEach(node => {
+    if (node.parent) {
+      const parentValue = node.parent.value as string;
+      if (!childMap.has(parentValue)) {
+        childMap.set(parentValue, []);
+      }
+      childMap.get(parentValue)!.push(nodeMap.get(node.value as string)!);
+    }
+  });
+
+  const rootNodes: TreeOptionData[] = [];
+  nodeMap.forEach(node => {
+    const children = childMap.get(node.value as string);
+    if (children && children.length > 0) {
+      node.children = children;
+    }
+    if (rootValues.has(node.value as string)) {
+      rootNodes.push(node);
+    }
+  });
+
+  return rootNodes;
+}
+
+const filteredData = computed(() => {
+  if (!searchText.value.trim()) {
+    return data.value;
+  }
+
+  const flatNodes = flattenTree(data.value);
+  const searchLower = searchText.value.toLowerCase();
+
+  const matchedNodeValues = new Set<string>();
+  flatNodes.forEach(node => {
+    const label = String(node.label || '').toLowerCase();
+    if (label.includes(searchLower)) {
+      matchedNodeValues.add(node.value as string);
+      let current = node.parent;
+      while (current) {
+        matchedNodeValues.add(current.value as string);
+        current = current.parent;
+      }
+    }
+  });
+
+  const filteredFlatNodes = flatNodes.filter(node => matchedNodeValues.has(node.value as string));
+  return buildFilteredTree(filteredFlatNodes);
+});
+
+function onSearchInput() {
+  actives.value = [];
+}
 
 watch(() => useUrlStore().id, value => {
   useDataBrowserViewStore().init(`${value}`);

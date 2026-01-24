@@ -4,8 +4,6 @@ import configuration from "@/components/RestClientEditor/configuration";
 import provider from "@/components/RestClientEditor/provider";
 import {restFoldingRangeProvider} from "@/components/RestClientEditor/foldingRange";
 
-export {default as RestClientEditor} from "./index.vue";
-
 export function registerLanguageForHttp() {
   monaco.languages.register({id: 'http'});
   // 语法高亮

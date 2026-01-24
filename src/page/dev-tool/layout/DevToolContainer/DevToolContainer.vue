@@ -56,7 +56,7 @@
               <span class="tab-name">{{ tab.label }}</span>
             </div>
           </template>
-          <ss-file-content
+          <dev-tool-file-content
             :content="getFileContent(tab.value)"
             :file-id="tab.value"
           />
@@ -67,7 +67,7 @@
 </template>
 <script lang="ts" setup>
 import {useDevToolFileItemStore, useDevToolStore, useUrlStore} from "@/store";
-import SsFileContent from "@/page/dev-tool/components/SsFileContent.vue";
+import DevToolFileContent from "@/page/dev-tool/components/DevToolFileContent.vue";
 import EmptyResult from "@/components/Result/ErrorResult.vue";
 import MessageUtil from "@/utils/model/MessageUtil";
 import {TabsProps, TdTabPanelProps} from "tdesign-vue-next";

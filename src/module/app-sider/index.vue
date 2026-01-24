@@ -80,12 +80,6 @@
           {{ $t('menu.more_about') }}
         </t-menu-item>
       </t-submenu>
-      <t-menu-item :value="PageNameEnum.SENIOR_SEARCH">
-        <template #icon>
-          <filter-icon/>
-        </template>
-        {{ $t('menu.senior_search') }}
-      </t-menu-item>
       <template #operations>
         <t-button variant="text" shape="square" @click="changeCollapsed()">
           <template #icon>
