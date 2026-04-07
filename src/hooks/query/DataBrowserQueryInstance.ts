@@ -70,12 +70,35 @@ function renderFunctionForDataFormat(expr: ExprFunctionCall, record: Record<stri
   return dayjs(date).format(f);
 }
 
+function renderFunctionForUnixTimestamp(expr: ExprFunctionCall, record: Record<string, any>): string {
+  if (expr.args.length === 0) {
+    // 无参数时返回当前时间戳
+    return Math.floor(Date.now() / 1000).toString();
+  } else {
+    // 有参数时解析日期并返回时间戳
+    let date = "";
+    const [field] = expr.args;
+    if (field.type === "Identifier") {
+      date = record[field.name];
+    } else if (field.type === "StringLiteral") {
+      date = field.value;
+    } else if (field.type === "NumberLiteral") {
+      date = field.value.toString();
+    } else if (field.type === "FunctionCall") {
+      date = renderFunctionForConcat(field, record);
+    }
+    return Math.floor(dayjs(date).valueOf() / 1000).toString();
+  }
+}
+
 function renderFunctionCall(expr: ExprFunctionCall, record: Record<string, any>): string {
   switch (expr.name.toUpperCase().trim()) {
     case "CONCAT":
       return renderFunctionForConcat(expr, record);
     case "DATE_FORMAT":
       return renderFunctionForDataFormat(expr, record);
+    case "UNIX_TIMESTAMP":
+      return renderFunctionForUnixTimestamp(expr, record);
     default:
       console.warn("不支持的函数调用：" + expr.name);
       return "";
@@ -195,6 +218,20 @@ export function useDataBrowserQueryInstance(sql: string, id: string): UseDataBro
                 field: expr.value.toString()
               });
               break;
+            case "GlobalVariable": {
+              const k = alias || expr.name;
+              c.push({
+                title: k,
+                field: k
+              });
+              // 处理CURRENT_TIMESTAMP
+              if (expr.name === "CURRENT_TIMESTAMP") {
+                r.forEach((e) => {
+                  e[k] = dayjs().format("YYYY-MM-DD HH:mm:ss");
+                });
+              }
+              break;
+            }
             case "FunctionCall": {
               // 最麻烦的方法调用，要适配多种方法，但是方法调用之会导致结果发生变化。
               const k = alias || expr.name;

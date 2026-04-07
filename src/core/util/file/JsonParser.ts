@@ -2,6 +2,7 @@
  * 自定义JSON解析器，处理BigInt和长整型数据精度问题
  * 支持ES2023的BigInt类型
  */
+import MessageUtil from "@/utils/model/MessageUtil";
 
 // 长整型数据的最大安全值
 const MAX_SAFE_INTEGER = Number.MAX_SAFE_INTEGER;
@@ -27,19 +28,24 @@ function isBigIntString(str: string): boolean {
  * @returns 解析后的对象
  */
 export function parseJsonWithBigIntSupport<T extends Record<string, any>>(text: string): T {
-  const preprocessed = preprocessBigIntNumbers(text);
+  try {
+    const preprocessed = preprocessBigIntNumbers(text);
 
-  return JSON.parse(preprocessed, (_key, value) => {
-    if (typeof value === "string" && isBigIntString(value)) {
-      return BigInt(value);
-    }
+    return JSON.parse(preprocessed, (_key, value) => {
+      if (typeof value === "string" && isBigIntString(value)) {
+        return BigInt(value);
+      }
 
-    if (typeof value === "number" && isUnsafeInteger(value)) {
-      return BigInt(Math.trunc(value));
-    }
+      if (typeof value === "number" && isUnsafeInteger(value)) {
+        return BigInt(Math.trunc(value));
+      }
 
-    return value;
-  });
+      return value;
+    });
+  } catch (e) {
+    MessageUtil.warning("JSON解析出现问题，数值类型精度可能丢失");
+    return JSON.parse(text);
+  }
 }
 
 /**

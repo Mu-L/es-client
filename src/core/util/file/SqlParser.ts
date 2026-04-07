@@ -38,6 +38,8 @@ const lexer = moo.compile({
   like: 'LIKE',
   and: 'AND',
   or: 'OR',
+  // 全局变量
+  current_timestamp: 'CURRENT_TIMESTAMP',
 
   // 操作符（优先匹配长串）
   lte: '<=',
@@ -61,7 +63,7 @@ const lexer = moo.compile({
 /**
  * 支持的方法表达式
  */
-export type ExprFunctionName = "CONCAT" | "DATE_FORMAT";
+export type ExprFunctionName = "CONCAT" | "DATE_FORMAT" | "UNIX_TIMESTAMP";
 
 export type ExprFunctionCall = {
   type: 'FunctionCall';
@@ -81,6 +83,8 @@ export type Expr =
   | { type: 'NumberLiteral'; value: number }
   // 函数调用
   | ExprFunctionCall
+  // 全局变量
+  | { type: 'GlobalVariable'; name: string }
   // * 通配符
   | { type: 'Star' }
   // 表名.* 通配符
@@ -250,6 +254,12 @@ export class SQLParser {
       return { type: 'Identifier', name: raw.slice(1, -1) };
     }
 
+    // 全局变量
+    if (this.peek().type === 'current_timestamp') {
+      this.consume('current_timestamp');
+      return { type: 'GlobalVariable', name: 'CURRENT_TIMESTAMP' };
+    }
+
     // 普通标识符
     if (this.peek().type === 'ident') {
       const ident = this.consume('ident').value;
@@ -300,6 +310,7 @@ export class SQLParser {
       const argsStr = expr.args.map(a => this.formatExprArg(a)).join(', ');
       return `${expr.name}(${argsStr})`;
     }
+    if (expr.type === 'GlobalVariable') return expr.name;
     if (expr.type === 'Star') return '*';
     if (expr.type === 'QualifiedStar') return `${expr.table}.*`;
     return 'expr';
@@ -315,6 +326,8 @@ export class SQLParser {
         return a.name;
       case 'FunctionCall':
         return `${a.name}(${a.args.map(x => this.formatExprArg(x)).join(', ')})`;
+      case 'GlobalVariable':
+        return a.name;
       case 'Star':
         return '*';
       case 'QualifiedStar':
