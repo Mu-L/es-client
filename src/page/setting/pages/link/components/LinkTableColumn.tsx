@@ -3,6 +3,7 @@ import { openUpdateLink } from "@/page/setting/pages/link/components/EditLink";
 import MessageUtil from "@/utils/model/MessageUtil";
 import {copyText} from "@/utils/BrowserUtil";
 import i18n from "@/i18n";
+import {useUrlStore} from "@/store";
 
 const t = (key: string) => i18n.global.t(key);
 
@@ -55,7 +56,16 @@ export const linkTableColumn: TdPrimaryTableProps["columns"] = [
         <Button theme={"primary"} size={"small"} onClick={() => openUpdateLink(row as any)}>
           {t('setting.edit')}
         </Button>
-        <Popconfirm confirmBtn={t('setting.delete')} content={t('setting.delete_confirm')}>
+        <Popconfirm 
+          confirmBtn={t('setting.delete')} 
+          content={t('setting.delete_confirm')}
+          onConfirm={() => {
+            useUrlStore()
+              .remove(row.id)
+              .then(() => MessageUtil.success(t('setting.delete_success')))
+              .catch((e) => MessageUtil.error(t('setting.delete_failed'), e));
+          }}
+        >
           <Button theme={"danger"} size={"small"}>{t('setting.delete')}</Button>
         </Popconfirm>
       </Space>
