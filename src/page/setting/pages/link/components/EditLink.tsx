@@ -24,8 +24,11 @@ const t = (key: string) => i18n.global.t(key);
 
 export function openAddLink() {
   const link = ref(getDefaultUrl());
+  const submitting = ref(false);
 
   function submit() {
+    if (submitting.value) return;
+    
     if (!link.value.name) {
       MessageUtil.error(t('setting.name_required'));
       return;
@@ -39,13 +42,17 @@ export function openAddLink() {
       return;
     }
 
+    submitting.value = true;
     useUrlStore()
       .add(cloneDeep(link.value))
       .then(() => {
         MessageUtil.success(t('setting.add_success'));
         modalReturn.destroy();
       })
-      .catch((e) => MessageUtil.error(t('setting.add_failed'), e));
+      .catch((e) => MessageUtil.error(t('setting.add_failed'), e))
+      .finally(() => {
+        submitting.value = false;
+      });
   }
 
   const modalReturn = DialogPlugin({
@@ -53,29 +60,59 @@ export function openAddLink() {
     placement: "center",
     draggable: true,
     default: () => buildForm(link),
-    footer: () => buildFooter(link, 0, submit)
+    footer: () => buildFooter(link, 0, submit, submitting)
   });
 }
 
 export function openUpdateLink(record: Url) {
   const link = ref(cloneDeep({...record, platform: record.platform || "elasticsearch"}));
+  const submitting = ref(false);
 
   function submit() {
+    if (submitting.value) return;
+    
+    if (!link.value.name) {
+      MessageUtil.error(t('setting.name_required'));
+      return;
+    }
+    if (!link.value.value) {
+      MessageUtil.error(t('setting.link_required'));
+      return;
+    }
+    
+    // 检查连接信息是否变更
+    const connectionChanged = 
+      record.value !== link.value.value ||
+      record.isAuth !== link.value.isAuth ||
+      record.authType !== link.value.authType ||
+      record.authUser !== link.value.authUser ||
+      record.authPassword !== link.value.authPassword;
+    
+    // 如果连接信息变更，必须先测试连接
+    if (connectionChanged && !link.value.version) {
+      MessageUtil.error(t('setting.test_first'));
+      return;
+    }
+
+    submitting.value = true;
     useUrlStore()
       .update(record.id, cloneDeep(link.value))
       .then(() => {
         MessageUtil.success(t('setting.update_success'));
         modalReturn.destroy();
       })
-      .catch((e) => MessageUtil.error(t('setting.update_failed'), e));
+      .catch((e) => MessageUtil.error(t('setting.update_failed'), e))
+      .finally(() => {
+        submitting.value = false;
+      });
   }
 
   const modalReturn = DialogPlugin({
-    header: t('setting.add_link'),
+    header: t('setting.edit_link'),
     placement: "center",
     draggable: true,
     default: () => buildForm(link),
-    footer: () => buildFooter(link, record.id, submit)
+    footer: () => buildFooter(link, record.id, submit, submitting)
   });
 }
 
@@ -155,12 +192,12 @@ function buildForm(link: Ref<Url>) {
   );
 }
 
-function buildFooter(link: Ref<Url>, id: number, submit: () => void) {
-  const loading = ref(false);
+function buildFooter(link: Ref<Url>, id: number, submit: () => void, submitting?: Ref<boolean>) {
+  const testing = ref(false);
 
   function test() {
-    if (loading.value) return;
-    loading.value = true;
+    if (testing.value) return;
+    testing.value = true;
     const lp = LoadingPlugin({content: t('setting.loading')});
     useRequestJson("/", buildEsRequestConfig({}, cloneDeep(link.value)))
       .then((response) => {
@@ -180,17 +217,17 @@ function buildFooter(link: Ref<Url>, id: number, submit: () => void) {
         NotificationUtil.error(`${t('setting.link_unavailable')}: ${e}`, t('setting.test_failed'));
       })
       .finally(() => {
-        loading.value = false;
+        testing.value = false;
         lp.hide();
       });
   }
 
   return (
     <Space>
-      <Button variant={"outline"} onClick={test}>
+      <Button variant={"outline"} onClick={test} loading={testing.value} disabled={testing.value || submitting?.value}>
         {t('setting.test')}
       </Button>
-      <Button theme={"primary"} onClick={submit}>
+      <Button theme={"primary"} onClick={submit} loading={submitting?.value} disabled={testing.value || submitting?.value}>
         {id === 0 ? t('setting.add') : t('setting.update')}
       </Button>
     </Space>

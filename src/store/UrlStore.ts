@@ -117,15 +117,32 @@ export const useUrlStore = defineStore('url', () => {
       return Promise.reject(`存储【${id}】不存在`);
     }
     const now = new Date();
+    const oldUrl = urls.value[index];
     const target: Url = {
-      ...urls.value[index],
+      ...oldUrl,
       ...record,
       id,
       updateTime: now
     }
-    // 获取版本
-    const response = await useRequestJson<Overview>("/", buildRequestConfig(target));
-    target.version = response.version.number;
+    
+    // 检查连接信息是否变更
+    const connectionChanged = 
+      oldUrl.value !== target.value ||
+      oldUrl.isAuth !== target.isAuth ||
+      oldUrl.authType !== target.authType ||
+      oldUrl.authUser !== target.authUser ||
+      oldUrl.authPassword !== target.authPassword;
+    
+    // 只有连接信息变更时才重新获取版本
+    if (connectionChanged) {
+      try {
+        const response = await useRequestJson<Overview>("/", buildRequestConfig(target));
+        target.version = response.version.number;
+      } catch (e) {
+        return Promise.reject(`连接测试失败: ${e}`);
+      }
+    }
+    
     urls.value[index] = target;
     await _sync();
   };
