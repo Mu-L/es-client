@@ -1,29 +1,30 @@
 {
   "compilerOptions": {
-    "target": "esnext",
+    "target": "ES2020",
     "useDefineForClassFields": true,
-    "module": "esnext",
-    "moduleResolution": "node",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "strict": true,
     "jsx": "preserve",
-    "sourceMap": true,
     "resolveJsonModule": true,
+    "isolatedModules": true,
     "esModuleInterop": true,
-    "skipLibCheck": true,
     "jsxImportSource": "vue",
     "lib": [
-      "esnext",
-      "dom"
+      "ESNext",
+      "DOM"
     ],
+    "skipLibCheck": true,
     "baseUrl": "./",
     "paths": {
       "@/*": [
         "./src/*"
-      ],
-      "$/*": [
-        "./src/core/*"
       ]
     },
+    "noEmit": true,
+    "types": [
+      "utools-api-types"
+    ]
   },
   "include": [
     "src/**/*.ts",
@@ -33,13 +34,4 @@
     "auto-imports.d.ts",
     "components.d.ts"
   ],
-  "exclude": [
-    "node_modules",
-    "electron",
-    "src-edge",
-    "src-firefox",
-    "src-server",
-    "src-electron",
-    "src-tauri"
-  ]
 }

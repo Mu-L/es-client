@@ -42,3 +42,7 @@ pnpm-debug.log*
 # web
 /dist
 
+# reasonix
+.reasonix
+.codegraph
+/reasonix.toml

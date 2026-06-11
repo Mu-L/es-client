@@ -66,7 +66,6 @@ const onRemove = (tab: SelectOption) => emit('remove', tab);
 
     .close-icon {
       width: 16px;
-      height: 16px;
       border-radius: 8px;
       transition: all 0.2s ease-in-out;
       &:hover {
